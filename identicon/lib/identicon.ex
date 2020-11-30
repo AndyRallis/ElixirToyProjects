@@ -1,5 +1,9 @@
 defmodule Identicon do
 
+  @moduledoc """
+    Creates an identicon for a given text string
+  """
+
   # Take in string - DONE
   # Calculater an MD5 from Erlang - DONE
   # Grab first 3 elements as color - DONE
@@ -10,6 +14,16 @@ defmodule Identicon do
   # Create corner calculations - DONE
   # Draw images with erlang :egd - DONE
   # Save to file - DONE
+
+  @doc """
+    Main runner for the project
+
+    Examples
+
+      iex> Identicon.runner("Andy")
+      :ok
+
+  """
   def runner(input) do
     input
     |> hash_input
@@ -62,12 +76,41 @@ defmodule Identicon do
     %Identicon.Image{image | pixel_map: pixel_map}
   end
 
+
+  @doc """
+    Basic filter to check if code integer is divisible by two (even) inside the tuple grid structure
+    {code, index}
+
+    Examples
+
+      iex> filtered_list = Identicon.filter_odds([{1, 1}, {245, 2}, {244, 15}])
+      [{244, 15}]
+      iex> filtered_list
+      [{244, 15}]
+      iex> length filtered_list
+      1
+
+  """
+  @spec filter_odds({integer, any}) :: [{integer, any}]
   def filter_odds(grid) do
     Enum.filter grid, fn({code, _index}) ->
       rem(code, 2) == 0
     end
   end
 
+  @doc """
+    We assume a 5x5 grid. Each row is a list of three numbers (the first three columns).
+    The first and second need to be reflected a, b, c -> a, b, c, b, c
+
+    Examples
+
+      iex> Identicon.reflect_columns([:a, :b, :c])
+      [:a, :b, :c, :b, :a]
+
+      iex> Identicon.reflect_columns(["Jeff", "Dan", 1234])
+      ["Jeff", "Dan", 1234, "Dan", "Jeff"]
+
+  """
   def reflect_columns([first, second, _tail] = grid_row) do
     grid_row ++ [second, first]
   end
@@ -76,6 +119,21 @@ defmodule Identicon do
     %Identicon.Image{image | color: {r, g, b}}
   end
 
+
+  @doc """
+    Uses the crypto and binary Erlang libraries to hash text string
+
+    Examples
+
+      iex> Identicon.hash_input("asdf")
+      %Identicon.Image{
+        color: nil,
+        grid: nil,
+        hex: [145, 46, 200, 3, 178, 206, 73, 228, 165, 65, 6, 141, 73, 90, 181, 112],
+        pixel_map: nil
+      }
+
+  """
   def hash_input(input) do
     hex = :crypto.hash(:md5, input)
     |> :binary.bin_to_list
