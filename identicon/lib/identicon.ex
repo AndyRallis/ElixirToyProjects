@@ -1,5 +1,4 @@
 defmodule Identicon do
-
   @moduledoc """
     Creates an identicon for a given text string
   """
@@ -40,8 +39,8 @@ defmodule Identicon do
       hex
       |> Enum.chunk(3)
       |> Enum.map(&reflect_columns/1)
-      |> List.flatten
-      |> Enum.with_index
+      |> List.flatten()
+      |> Enum.with_index()
       |> filter_odds
 
     %Identicon.Image{image | grid: grid}
@@ -55,27 +54,27 @@ defmodule Identicon do
     image = :egd.create(250, 250)
     fill = :egd.color(color)
 
-    Enum.each pixel_map, fn({start, stop}) ->
+    Enum.each(pixel_map, fn {start, stop} ->
       :egd.filledRectangle(image, start, stop, fill)
-    end
+    end)
 
     :egd.render(image)
   end
 
   def build_pixel_map(%Identicon.Image{grid: grid} = image) do
-    pixel_map = Enum.map grid, fn({_code, index}) ->
-      horizontal = rem(index, 5) * 50
-      vertical = div(index, 5) * 50
+    pixel_map =
+      Enum.map(grid, fn {_code, index} ->
+        horizontal = rem(index, 5) * 50
+        vertical = div(index, 5) * 50
 
-      top_left = {horizontal, vertical}
-      bottom_right = {horizontal + 50, vertical + 50}
+        top_left = {horizontal, vertical}
+        bottom_right = {horizontal + 50, vertical + 50}
 
-      {top_left, bottom_right}
-    end
+        {top_left, bottom_right}
+      end)
 
     %Identicon.Image{image | pixel_map: pixel_map}
   end
-
 
   @doc """
     Basic filter to check if code integer is divisible by two (even) inside the tuple grid structure
@@ -93,9 +92,9 @@ defmodule Identicon do
   """
   @spec filter_odds({integer, any}) :: [{integer, any}]
   def filter_odds(grid) do
-    Enum.filter grid, fn({code, _index}) ->
+    Enum.filter(grid, fn {code, _index} ->
       rem(code, 2) == 0
-    end
+    end)
   end
 
   @doc """
@@ -119,7 +118,6 @@ defmodule Identicon do
     %Identicon.Image{image | color: {r, g, b}}
   end
 
-
   @doc """
     Uses the crypto and binary Erlang libraries to hash text string
 
@@ -135,9 +133,10 @@ defmodule Identicon do
 
   """
   def hash_input(input) do
-    hex = :crypto.hash(:md5, input)
-    |> :binary.bin_to_list
+    hex =
+      :crypto.hash(:md5, input)
+      |> :binary.bin_to_list()
+
     %Identicon.Image{hex: hex}
   end
-
 end
